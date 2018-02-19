@@ -1,0 +1,34 @@
+###############################################
+# Analysis for Figure 3 - Guppies
+###############################################
+
+###
+# patternize registration/K analysis
+###
+
+# Lists with samples
+IDListA <- c('400007 2008-09-06','400007 2009-01-17')
+
+# make lists with images
+prepath <- 'images/Frogs'
+extension <- '.jpg'
+imageListA <- makeList(IDListA, 'image', prepath, extension)
+
+# choose target image
+target <- imageListA[['400007 2009-01-17']]
+
+# read in the outline
+outline_400007 <- read.table('cartoon/400007 2009-01-17.txt', h= F)
+
+# run alignment of color patterns
+rasterList_regKA <- patRegK(imageListA, target, k = 7, resampleFactor = 5, 
+crop = c(100,1500,100,1000), plot = TRUE, useBlockPercentage = 90, 
+maskOutline = outline_400007, maskColor = 255)
+
+# sum the colorpatterns
+summedRaster_KA <- sumRaster(rasterList_regKA, IDListA, type = 'k')
+
+# plot heatmaps using the list of summed rasters
+plotHeat(summedRaster_KA, IDListA, plotCartoon = TRUE, refShape = 'target', 
+outline = outline_400007, crop = c(100,1500,100,1000), flipRaster = 'y', 
+imageList = imageListA, cartoonOrder = 'under', cartoonFill = 'black')
