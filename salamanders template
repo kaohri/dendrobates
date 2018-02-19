@@ -1,0 +1,46 @@
+###############################################
+# Analysis for Figure 5 - Salamanders
+###############################################
+
+###
+# patternize landmarks/watershed analysis
+###
+
+# Lists with samples
+IDListSal <- c('400007 2009-01-17', '400007 2008-09-06')
+
+# make list with landmarks
+prepath <- 'landmarks/Frogs'
+extension <- '_landmarks.txt'
+landmarkListSal <- makeList(IDListSal, 'landmark', prepath, extension)
+
+# make lists with images
+prepath <- 'images/Frogs'
+extension <- '.JPG'
+imageListSal <- makeList(IDListSal, 'image', prepath, extension)
+
+# make square reference to transform images to
+REF = matrix(c(0,0,100,0,100,100,0,100), nrow=4, ncol=2, byrow = TRUE)
+
+# extract the patterns using watershed
+###Error in abind::abind(landmarksArray, landmarksArray1, along = 3) : 
+### arg 'X2' has dims=4, 2, 1; but need dims=5, 2, X
+rasterList_SalW <- patLanW(imageListSal, landmarkListSal, transformRef = REF, resampleFactor = 5, plotTransformed = TRUE, 
+                           correct = TRUE, plotCorrect = FALSE, blur = FALSE, sigma = 2, bucketfill = FALSE, cleanP = 3, adjustCoords = TRUE,
+                           splitC = 10, plotPriority = TRUE, plotWS = TRUE, plotBF = TRUE, plotFinal = TRUE, maskOutline = REF)
+
+# save(rasterList_SalW, file = 'output/Fig4_rasterList_SalW.rda')
+load('output/Fig4_rasterList_SalW.rda')
+
+# sum the colorpatterns
+summedRaster_SalW <- sumRaster(rasterList_SalW, IDListSal, type = 'RGB')
+
+# plot heatmap
+outline_4031 <- read.table('cartoon/4031_outline.txt', h= F)
+
+colfunc <- inferno(100)
+plotHeat(summedRaster_SalW, IDListSal, plotCartoon = TRUE, refShape = REF, outline = outline_4031, landList = landmarkListSal, 
+         adjustCoords = TRUE, flipOutline = 'y', imageList = imageListSal, cartoonID = '4031', cartoonFill = 'black', 
+         cartoonOrder = 'under', colpalette = colfunc)
+
+rect(0,0,100,100, border= 'red')
